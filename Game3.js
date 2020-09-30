@@ -12,29 +12,40 @@ let flag_point = -1;
 let flag_change = 0;
 let flag_finish = 0;
 let flag_draw = 0;
+let flag_cath = 0;
+let flag_num_to_move = 0;
 let x, y;
+let base = 45, altura = 50;
 
-let hojas = [];
+let tarjetasNumericas = [];
+let tableros = [];
+
+let tablero_Con_Numeros = [];
+let tablero_tomar_numeros = [1,2,3,4,5,6,7,8,9,10];
 
 function preload(){
-    img0 = loadImage('assets/hoja.jpg'); // Cargar la imagen
+    img0 = loadImage('assets/cuadroCut.jpg'); // Cargar la imagen
 }
 
 function createTable(){
-    createCanvas(displayWidth, displayHeight, WEBGL);
-    translate(-220, 0, 0);
-    x = width / 2;
+    createCanvas(displayWidth, displayHeight);
+    generarNumerosTablero();
+    button = createButton('submit');
+    button.position(0, 65);
+    button.mousePressed(check);
+    // console.log("len " + tablero_tomar_numeros.length);
+    x = width;
     y = height;
-    for (let i = 0; i < 1; i++) {
-        hojas.push(new Hoja());
+    for (let i = 0; i < tablero_tomar_numeros.length; i++) {
+        tarjetasNumericas.push(new tarjeta(tablero_tomar_numeros[i], i+1));
     }
+    tableros.push(new tablero());
     
-    // imageMode(CORNER);
-    // fill(0);
-    // textSize(12);
-    // textFont('Georgia', 200);
-    // text('Georgia', 12, 30);
-     
+    // console.log("lens " + tarjetasNumericas.length);
+    for (let i = 0; i < tarjetasNumericas.length; i++) {
+        // console.log(tarjetasNumericas[i]);
+    }
+    // check();
 }
 
 function setup() {
@@ -42,108 +53,216 @@ function setup() {
 }
 
 function mousePressed() {
-    let distancia = 0;
-    flag_draw = 1;
-    // for (let i = 0; i < hojas.length; i++) {
-    //     // hojas[i].move();
-    //     // hojas[i].display();
+    if(mouseIsPressed == 1){
+        flag_draw = 1;
+    }
+}
 
-    //     // console.log(mouseX + "  " + mouseY);
+function generarNumerosTablero(){
+    let cantidadNumerosEscritos = round(random(1, 5));
+    // console.log("cantidad de numeros " + cantidadNumerosEscritos);
+    let i = 0;
+    let exit = 0;
+    let index;
+    let nuevoNumero;
+    // index = tablero_tomar_numeros.indexOf(12);
+    // console.log(index);
+    // let pos = frutas.indexOf('Banana');
+    do{
+        index = 0;
+        nuevoNumero = round(random(1, 10));
+        // tablero_Con_Numeros.push(round(random(1, 10)));
+        if(i == 0){
+            index = tablero_tomar_numeros.indexOf(nuevoNumero);
+            tablero_tomar_numeros.splice(index, 1);
+            tablero_Con_Numeros.push(nuevoNumero);
+            i++;
+        }
+        else if(i >= 1){
+            index = tablero_tomar_numeros.indexOf(nuevoNumero);
+            if(index > 0){
+                // index = tablero_tomar_numeros.indexOf(tablero_Con_Numeros[i]);
+                tablero_tomar_numeros.splice(index, 1);
+                tablero_Con_Numeros.push(nuevoNumero);
+                i++;
+            }
+        }
+        // i++;
+        if(i == cantidadNumerosEscritos){
+            exit = 1;
+        }
+    }while(exit == 0);
+    for(i = 0; i < tablero_Con_Numeros.length; i++){
+        // console.log(tablero_Con_Numeros[i]);
+    }
+    // console.log("a tomar");
+    for(i = 0; i < tablero_tomar_numeros.length; i++){
+        // console.log(tablero_tomar_numeros[i]);
+    }
+}
+
+function check(){
+    let dis = [];
+    let cont = 1, i = 0, ejeX = 1;
+    let index = 0;
+    let xT = tableros[0].x;
+    let yT = tableros[0].y;
+    let exit = 0;
+    do{
+        console.log(i);
+        if(ejeX == tarjetasNumericas[i].number && ejeX <= 5){
+            console.log("abajo " + cont);
+            dis.push(dist(xT + (base * (cont)), yT, tarjetasNumericas[i].x, tarjetasNumericas[i].y));
+            i++;
+        }
+        else if(ejeX == tarjetasNumericas[i].number && ejeX > 5){
+            console.log("arr " + cont);
+            dis.push(dist(xT + (base * (cont)), yT + altura, tarjetasNumericas[i].x, tarjetasNumericas[i].y));
+            i++;
+        }
+        cont++;
+        ejeX++;
+        if(cont >= 6){
+            cont = 1;
+        }
+        if(i >= tarjetasNumericas.length){
+            i = tarjetasNumericas.length-1;
+        }
         
-    //     distancia = dist(hojas[i].x * 4, hojas[i].y * 3, mouseX, mouseY);
-    //     distancia = distancia / 4;
-    //     console.log("X" + hojas[i].x + "  Y" + hojas[i].y + "   XM" + mouseX + "   YM", mouseY + "   D" + distancia);
-    //     // console.log(distancia);
-    //     // distancia = distancia - hojas[i].diameter / 2;
-    //     // console.log(distancia);
- 
-
-    //     if(distancia < 60){
-    //         // console.log(hojas[i]);
-    //     }
-    // }
+        if(ejeX > 10 ){
+            exit = 1;
+        }
+    }while(exit == 0);
+    cont = 0;
+    for(let i = 0; i < dis.length; i++){
+        if(dis[i] < 10){
+            cont++;
+        }
+        console.log(dis[i]);
+    }
+    if(cont == dis.length){
+        alert("complete");
+    }
 }
 
 function draw(){
-    // clear();
-    // createTable();
-    background(200);
-    // Draw a circle
-    // stroke(50);
-    // fill(100);
-    // clear();
-    texture(img0);
-    // rotate(PI / 2);
-    line(100, 100, mouseX, mouseY);
-    for (let i = 0; i < hojas.length; i++) {
-        hojas[i].move();
-        hojas[i].display();
+    clear();
+    background(210);
+    tableros[0].display();
+    for (let i = 0; i < tarjetasNumericas.length; i++) {
         
-        // hojas[i].mousePressed();
-        if(flag_draw){
-            console.log("asd");
-            strokeWeight(5);
-            line(100, 100, mouseX, mouseY);
-            flag_draw = 0;
+        tarjetasNumericas[i].move();
+        tarjetasNumericas[i].display();
+        
+        if(mouseIsPressed == 1 ){
+            if(flag_cath == 0){
+                let distancia;
+                distancia = dist(tarjetasNumericas[i].x + tarjetasNumericas[i].base / 2, tarjetasNumericas[i].y + tarjetasNumericas[i].altura / 2, mouseX, mouseY);
+                if(distancia < base / 2 && distancia < altura){
+                    console.log(tarjetasNumericas[i]);
+                    flag_cath = 1;
+                    flag_num_to_move = i;
+                    
+                    // console.log(flag_num_to_move);
+                }
+            }
+        }
+        else{
+            flag_cath = 0;
+            
         }
     }
-   
+    if(flag_cath == 1){
+
+        tarjetasNumericas[flag_num_to_move].x = mouseX - (tarjetasNumericas[flag_num_to_move].base / 2);
+        tarjetasNumericas[flag_num_to_move].y = mouseY - (tarjetasNumericas[flag_num_to_move].altura / 2);
+        tarjetasNumericas[flag_num_to_move].move();
+        tarjetasNumericas[flag_num_to_move].display();
+    }
 }
 
-class Hoja {
-    constructor() {
-        let xr = random(100, 300);
-        let yr = random(100, 300);
-        let dis = 0;
-        let exit = 0;
-        let distancia = 100;
-        // console.log(hojas.length);
-        
-
-        if(xr >= 0){
-            this.x = xr;
-        }
-        if(yr >= 0){
-            this.y = yr;
-        }
-    //   this.x = random(width);
-    //   this.y = random(height);
-      this.diameter = 60;
-      this.speed = 0.4;
+class tarjeta {
+    constructor(numero, index) { 
+        this.base = base;
+        this.altura = altura;
+        this.x = index * base;
+        this.y = 0;
+        this.number = numero;
+        this.diameter = 60;
     }
   
     move() {
-      this.x += random(-this.speed, this.speed);
-      this.y += random(-this.speed, this.speed);
+    //   this.x += random(-this.speed, this.speed);
+    //   this.y += random(-this.speed, this.speed);
 
-    //   if(hojas.length >= 2){
-    //     console.log("entra");
-    //     for(let i = 0; i < hojas.length; i++){
-    //         dis = dist(hojas[i].x, hojas[i].y, xr, yr);
-    //         console.log(i);
-    //         if(dis < distancia){
-    //             console.log("co");
-    //             console.log(dis);
-    //             do{
-    //                 xr = random(displayWidth / 4);
-    //                 yr = random(displayHeight / 3);
-    //                 dis = dist(hojas[i].x, hojas[i].y, xr, yr);
-    //                 if(dis > distancia){
-    //                     exit = 1;
-    //                 }
-    //             }while(exit == 0);
-    //         } 
-    //     }
-    //     // dist();
-    // }
+    
     }
-  
-    // mousePressed(){
-    //     console.log("asd");
-    // }
 
     display() {
-        noStroke();
-        rect(this.x, this.y, this.diameter, this.diameter);
+        // noStroke();
+        image(img0, this.x, this.y, this.base, this.altura);
+        textSize(32);
+        stroke(0, 0, 0);
+        // fill(255,255,255);
+        if(this.number <= 9){
+            // fill(0, 102, 153);
+            text(this.number, this.x + this.base / 3, this.y + this.altura / 1.4);
+        }
+        else{
+            text(this.number, this.x + this.base / 15, this.y + this.altura / 1.4);
+        }
     }
   }
+
+class tablero {
+    constructor() {
+        let xT= displayWidth / 3;
+        let yT = displayHeight / 4;
+        this.base = base;
+        this.altura = altura;
+        this.x = xT;
+        this.y = yT;
+        // this.number = numero;
+    }
+
+    move() {
+    //   this.x += random(-this.speed, this.speed);
+    //   this.y += random(-this.speed, this.speed);
+    }
+
+    display() {
+        // noStroke();
+        let cont = 1;
+        for(let i = 0; i < 5; i++){
+            rect(this.x + (base * (i+1)), this.y, this.base, this.altura);
+        }
+        for(let i = 0; i < 5; i++){
+            rect(this.x + (base * (i+1)), this.y + altura, this.base, this.altura);
+        }
+
+        for(let j = 1; j <= 10; j++){
+            for(let i = 0; i < tablero_Con_Numeros.length; i++){
+                
+                if(j == tablero_Con_Numeros[i] && j <= 5){
+                    textSize(32);
+                    stroke(0, 0, 0);
+                    text(tablero_Con_Numeros[i], this.x + (this.base / 3) + (base * (cont)), this.y + this.altura / 1.4);
+                }
+                if(j == tablero_Con_Numeros[i] && j > 5){
+                    textSize(32);
+                    stroke(0, 0, 0);
+                    if(j == 10){
+                        text(tablero_Con_Numeros[i], this.x + (this.base / 15) + (base * (cont)), this.y + (this.altura / 1.4) + altura);
+                    }
+                    else{
+                        text(tablero_Con_Numeros[i], this.x + (this.base / 3) + (base * (cont)), this.y + (this.altura / 1.4) + altura);
+                    }
+                }
+            }
+            cont++;
+            if(cont > 5){
+                cont = 1;
+            }
+        }
+    }
+}
