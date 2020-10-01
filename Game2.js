@@ -12,6 +12,7 @@ let flag_draw = 0;
 let x, y;
 
 let hojas = [];
+let tablero;
 
 function preload(){
     img0 = loadImage('assets/hojaSin.png');
@@ -20,18 +21,34 @@ function preload(){
 
 function createTable(){
     createCanvas(displayWidth, displayHeight);
-    // image(img1, 0, 0, displayWidth, displayHeight);
-   
+    tablero = new Tablero();
+    tablero.getRandom();
     x = width ;
     y = height;
-    for (let i = 0; i < 10; i++) {
-        hojas.push(new Hoja(i + 1));
+    for (let i = 0; i < 20; i++) {
+        if(i < tablero.cantidad_numeros_repetidos){
+            hojas.push(new Hoja(tablero.number));
+        }
+        else{
+            hojas.push(new Hoja(generarRandomSinRepetir(tablero.number)));
+        }
     }
-    
 }
 
 function setup() {
     createTable();
+}
+
+function generarRandomSinRepetir(numeroNoRepetir){
+    let exit = 0;
+    let numero = 0;
+    do{
+        numero = round(random(1, 10));
+        if(numero != numeroNoRepetir){
+            exit = 1;
+        }
+    }while(exit == 0);
+    return numero;
 }
 
 function disObjes(obj1x, obj1y, obj2x, obj2y){
@@ -41,26 +58,45 @@ function disObjes(obj1x, obj1y, obj2x, obj2y){
 }
 
 function mousePressed() {
-    let distancia = 0;
     flag_draw = 1;
-    for (let i = 0; i < hojas.length; i++) {    
-        distancia = disObjes(hojas[i].x + diametroObj / 2, hojas[i].y + diametroObj / 2, mouseX, mouseY);
-
-        if(distancia < diametroObj / 2){
-            console.log(hojas[i]);
-        }
-    }
 }
 
 function draw(){
     image(img1, 0, 0, displayWidth, displayHeight);
-    circle(displayWidth,displayHeight / 2,40);
+    tablero.display();
     
     for (let i = 0; i < hojas.length; i++) {
         hojas[i].move();
         hojas[i].display();
     }
-   
+    if(flag_finish){
+        flag_finish = 0;
+        let next = confirm("Try again?");
+        if(next == 1){
+            hojas.splice(0, hojas.length);
+            tablero.getRandom();
+            for (let i = 0; i < 20; i++) {
+                if(i < tablero.cantidad_numeros_repetidos){
+                    hojas.push(new Hoja(tablero.number));
+                }
+                else{
+                    hojas.push(new Hoja(generarRandomSinRepetir(tablero.number)));
+                }
+            }
+        }
+    }
+    if(flag_draw){
+        flag_draw = 0;
+        for (let i = 0; i < hojas.length; i++) {    
+            distancia = disObjes(hojas[i].x + diametroObj / 2, hojas[i].y + diametroObj / 2, mouseX, mouseY);
+            if(distancia < diametroObj / 2 && hojas[i].number == tablero.number){
+                hojas.splice(i,1);
+                if(hojas[0].number != tablero.number){
+                    flag_finish = 1;
+                }
+            }
+        }
+    }
 }
 
 class Hoja {
@@ -77,13 +113,11 @@ class Hoja {
                 dis = disObjes(hojas[i].x + diametroObj / 2, hojas[i].y + diametroObj / 2, xr, yr);
 
                 if(dis < diametroObj){
-                    // console.log("co");
                     do{
                         xr = random(170, displayWidth - diametroObj);
                         yr = random(100, displayHeight - 200);
                         dis = disObjes(hojas[i].x + diametroObj / 2, hojas[i].y + diametroObj / 2, xr, yr);
                
-                        // console.log(dis);
                         if( diametroObj > distancia){
                             exit = 1;
                         }
@@ -97,7 +131,6 @@ class Hoja {
             }
         }
 
-
         if(xr >= 0){
             this.x = xr;
         }
@@ -105,9 +138,9 @@ class Hoja {
             this.y = yr;
         }
 
-    this.number = number;
-      this.diameter = diametroObj;
-      this.speed = 0.4;
+        this.number = number;
+        this.diameter = diametroObj;
+        this.speed = 0.4;
     }
   
     move() {
@@ -184,4 +217,40 @@ class Hoja {
             text(this.number, this.x + diametroObj / 4, this.y + diametroObj / 1.5);
         }
     }
-  }
+}
+
+class Tablero{
+    constructor(){
+        this.x = 50;
+        this.y = 50;
+        this.number = 0;
+        this.base = 100;
+        this.altura = 80;
+        this.cantidad_numeros_repetidos = 0;
+    }
+
+    getRandom(){
+        this.number = round(random(1, 10));
+        this.cantidad_numeros_repetidos = round(random(1, 10));
+    }
+
+    display(){
+        fill(235, 171, 59);
+        noStroke();
+        rect(this.x, this.y, this.base, this.altura);
+        if(this.number != 0){
+            if(this.number >= 10){
+                textSize(32);
+                stroke(0, 0, 0);
+                fill(0);
+                text(this.number, this.x + (this.base / 3), this.y + (this.altura / 1.6));
+            }
+            else if(this.number <= 9){
+                textSize(32);
+                stroke(0, 0, 0);
+                fill(0);
+                text(this.number, this.x + (this.base / 2.5), this.y + (this.altura / 1.6));
+            }
+        }
+    }
+}
